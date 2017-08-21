@@ -34,6 +34,9 @@ public class DocumentPicker extends ReactContextBaseJavaModule implements Activi
     private static final String NAME = "RNDocumentPicker";
     private static final int READ_REQUEST_CODE = 41;
 
+    private static final String TAG = "DocumentPicker";
+    private static final String TEMP_DIRECTORY = "react-native-document-picker";
+
     private static class Fields {
         private static final String FILE_SIZE = "fileSize";
         private static final String FILE_NAME = "fileName";
@@ -72,6 +75,23 @@ public class DocumentPicker extends ReactContextBaseJavaModule implements Activi
         this.callback = callback;
 
         getReactApplicationContext().startActivityForResult(intent, READ_REQUEST_CODE, Bundle.EMPTY);
+    }
+
+    @ReactMethod
+    public void clearTempFiles(){
+        try {
+            File tempDownloadDir = new File(getReactApplicationContext().getCacheDir() + "/" + TEMP_DIRECTORY);
+            if (tempDownloadDir.exists()) {
+                File[] files = tempDownloadDir.listFiles();
+                if (files != null) {
+                    for (File f : files) {
+                        f.delete();
+                    }
+                }
+            }
+        } catch (Exception e){
+            Log.e(TAG, "clearTempFiles: " + e.getMessage());
+        }
     }
 
     // removed @Override temporarily just to get it working on RN0.33 and RN0.32 - will remove
@@ -121,7 +141,9 @@ public class DocumentPicker extends ReactContextBaseJavaModule implements Activi
     private WritableMap metaDataFromUri(Uri uri) {
         WritableMap map = Arguments.createMap();
 
-        File outputDir = getReactApplicationContext().getCacheDir();
+        File outputDir = new File(getReactApplicationContext().getCacheDir() + "/" + TEMP_DIRECTORY);
+        if(!outputDir.exists())
+            outputDir.mkdirs();
         try {
             File downloaded = download(uri, outputDir);
 
