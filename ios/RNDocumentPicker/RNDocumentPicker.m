@@ -110,6 +110,7 @@ RCT_EXPORT_METHOD(show:(NSDictionary *)options
         if(error == nil) {
             NSMutableDictionary* result = [NSMutableDictionary dictionary];
             [result setValue:tempFile.absoluteString forKey:@"uri"];
+            [result setValue:tempFile.path forKey:@"path"];
             [result setValue:[tempFile lastPathComponent] forKey:@"fileName"];
             NSError *attributesError = nil;
             NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:tempFile.path error:&attributesError];
